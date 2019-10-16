@@ -5,6 +5,10 @@ from source and decide whether to send response
 this starting definition is not sufficient for the firewall 
 defense and needs to be improved as part of this project
 '''
+
+# Command to run from my terminal
+# repy.py network-firewall/restrictions.test network-firewall/defend_start.py 
+
 def inspect(ip, unused, sock, actionlog):
 
   # save received message
@@ -17,14 +21,21 @@ def inspect(ip, unused, sock, actionlog):
   
   # define trusted application protocols
   trustedaps = ['HT', 'GL']
+  trusted_ports = ('20001', '28724', '39845')                 #trusted ports
 
   # parse application protocol out of message  
   senderap = message[0:2]
+  sender_port = message[2:7]
 
   # if the application is trusted, send back 'Accept' message
-  if senderap in trustedaps:
+  if senderap in trustedaps and sender_port in trusted_ports:
     action = 'ACCEPT'
     sock.send('Accept')
+
+  # elif:  
+  else:
+    action = 'DROP'
+    sock.send('Drop')   
 
   ########    END MODIFY FIREWALL DEFENSE RULES    ########
 
