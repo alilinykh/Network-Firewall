@@ -20,18 +20,44 @@ def inspect(ip, unused, sock, actionlog):
   ########   MODIFY FIREWALL DEFENSE RULES HERE    ########
 
   # define trusted
+  trusted_ip = []
+  for x in range(0,13):
+    valid_ip = '127.0.0.' + str(x)
+    trusted_ip.append(valid_ip)
+
+
   trusted = {
     'ap': ('HT','GL'),
     'ports' : ('20001', '28724', '39845'),
-    'ips':  (''.join('127.0.0.{}:'.format(x) for x in range(0,13)).split(':'))
+  #works doesnt work in python3  
+  # 'ips':  (''.join('127.0.0.{}:'.format(x) for x in range(0,13)).split(':')) 
+    'ips': (trusted_ip)
   }
   
   #define semi-trusted
 
   #pretty ugly :(
-  ips1 = ''.join('127.0.0.{x}:'.format(x) for x in range(13,256)).split(':')
-  ips2 = ''.join('127.0.1.{x}:'.format(x) for x in range(256)).split(':')
-  ips3 = ''.join('127.1.1.{x}:'.format(x) for x in range(256)).split(':')
+  #doesnt work in r2py i guess because of .format  
+  #ips1 = ''.join('127.0.0.{x}:'.format(x) for x in range(13,256)).split(':')
+  #ips2 = ''.join('127.0.1.{x}:'.format(x) for x in range(256)).split(':')
+  #ips3 = ''.join('127.1.1.{x}:'.format(x) for x in range(256)).split(':')
+
+  #should work in r2py(Python2)
+  ips1 = []
+  for x in range(13,256):
+    valid_ip = '127.0.0.' + str(x)
+    ips1.append(valid_ip)
+
+  ips2 = []
+  for x in range(256):
+    valid_ip = '127.0.1.' + str(x)
+    ips2.append(valid_ip)
+
+  ips3 = []
+  for x in range(256):
+    valid_ip = '127.1.1.' + str(x)
+    ips3.append(valid_ip)      
+
 
   semi_trusted = {
     'ap': ('SR'),
