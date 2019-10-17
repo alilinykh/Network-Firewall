@@ -18,21 +18,49 @@ def inspect(ip, unused, sock, actionlog):
   action = "DROP"
 
   ########   MODIFY FIREWALL DEFENSE RULES HERE    ########
+
+  # define trusted
+  trusted = {
+    'ap': ('HT','GL'),
+    'ports' : ('20001', '28724', '39845'),
+    'ips':  (''.join(f'127.0.0.{x}:' for x in range(0,13)).split(':'))
+  }
   
-  # define trusted application protocols
-  trustedaps = ['HT', 'GL']
-  trusted_ports = ('20001', '28724', '39845')                 #trusted ports
+  #define semi-trusted
+
+  #pretty ugly :(
+  ips1 = ''.join(f'127.0.0.{x}:' for x in range(13,256)).split(':')
+  ips2 = ''.join(f'127.0.1.{x}:' for x in range(256)).split(':')
+  ips3 = ''.join(f'127.1.1.{x}:' for x in range(256)).split(':')
+
+  semi_trusted = {
+    'ap': ('SR'),
+    'ports' : ('49034'),
+    'ips': ( ips1 + ips2 + ips3 )
+  }
 
   # parse application protocol out of message  
   senderap = message[0:2]
   sender_port = message[2:7]
 
+  # create boolean conditions 
+  #trusted
+  is_trusted_ap = senderap in semi_trusted['ap']
+  is_trusted_port = sender_port in semi_trusted['ports']
+  is_trusted_ip = ip in semi_trusted['ips']
+
+  #semi-trusted
+  is_semi_trusted_ap = senderap in semi_trusted['ap']
+  is_semi_trusted_port = sender_port in semi_trusted['ports']
+  is_semi_trusted_ip = ip in semi_trusted['ips']
+
   # if the application is trusted, send back 'Accept' message
-  if senderap in trustedaps and sender_port in trusted_ports:
+  if is_trusted_ap and is_trusted_port and is_trusted_ip:
     action = 'ACCEPT'
     sock.send('Accept')
-
-  # elif:  
+  # elif expression:
+  #   action = 'REJECT'
+  #   sock.send('Reject')  
   else:
     action = 'DROP'
     sock.send('Drop')   
@@ -50,7 +78,8 @@ def inspect(ip, unused, sock, actionlog):
 ######## END OF INSPECT FUNCTION ###################
 
 # "global" variable for offset in file writing
-mycontext['offset'] = 0
+#using global variables indicated poor design 
+global mycontext['offset'] = 0
 
 # listen for connection requests coming in
 server = listenforconnection('127.0.0.1', 12777)
@@ -58,7 +87,8 @@ server = listenforconnection('127.0.0.1', 12777)
 ####### MODIFY 3-DIGIT STUDENT CODE ASSIGNED #######
 studentcode = "___"    # replace ___ with your 3-digit student code
 
-filename = "firewalllog_" + studentcode;
+
+filename = "firewalllog_" + studentcode         #no semicolons in python
 actionlog = openfile(filename, True)
 
 # keep checking for connection request
